@@ -32,6 +32,7 @@ const shops = [
         const hasStock = await checkStock({ page })
         
         console.log(`${vendor}: ${hasStock ? 'in stock' : 'out of stock'}`)
+        await page.screenshot({ path: `screenshots/${vendor}.png` })
 
         await page.close()
     }

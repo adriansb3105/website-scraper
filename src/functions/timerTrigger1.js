@@ -1,4 +1,4 @@
-const { app } = require('@azure/functions');
+import { app } from '@azure/functions'
 
 app.timer('timerTrigger1', {
     schedule: '0 */10 * * * *',

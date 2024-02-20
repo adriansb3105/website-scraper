@@ -1,66 +1,52 @@
 // @ts-check
 
-const { chromium } = require('playwright')
+import { collectTableWithHeaders } from 'playwright-table'
+import { chromium } from 'playwright'
 
-const shops = [
-    {
-        vendor: 'Microsoft',
-        url: 'https://www.xbox.com/es-es/configure/8WJ714N3RBTL',
-        checkStock: async ({ page }) => {
-            const content = await page.textContent('[aria-label="Finalizar la compra del pack"]')
-            return content?.includes('Finalizar la compra')
-        }
-    },
-    {
-        vendor: 'Soporte Consolas CR',
-        url: 'https://soporteconsolascr.com/products/xbox-series-x-1tb',
-        checkStock: async ({ page }) => {
-            const content = await page.textContent('#AddToCartText-product-template')
-            return content.includes('Agregar al carrito')
-        }
-    },
-    {
-        vendor: 'El Corte Ingles',
-        url: 'https://www.elcorteingles.es/videojuegos/A37047078-xbox-series-x',
-        checkStock: async ({ page }) => {
-            const content = await page.textContent('.product_detail-add_to_cart')
-            return content.includes('Añadir a la cesta')
-        }
-    }
-    /*{
-        vendor: 'Fnac',
-        url: 'https://www.fnac.es/Consola-Xbox-Series-X-Diablo-IV-Videoconsola-Consola/a10276544',
-        checkStock: async ({ page }) => {
-            const content = await page.textContent('[data-automation-id="product-buy-btn"]')
-            return content.includes('Añadir a la cesta')
-        }
-    },
-    {
-        vendor: 'Amazon',
-        url: 'https://www.amazon.com/-/es/Xbox-Forza-Horizons-Console-Bundle-X/dp/B0BNWDC18R/ref=sr_1_3',
-        checkStock: async ({ page }) => {
-            const addToCartButton = await page.$$('#add-to-cart-button') //Return an array
-            console.log(addToCartButton);
-            return addToCartButton.length > 0
-        }
-    }*/ //Disabled for now cause is not working properly
-]
+const SITE = 'https://finviz.com/screener.ashx?v=111&s=ta_topgainers'
 
 ;(async () => {
     const browser = await chromium.launch({ headless: false })
+    const page = await browser.newPage()
 
-    for(const shop of shops) {
-        const { checkStock, vendor, url } = shop
-        
-        const page = await browser.newPage()
-        await page.goto(url)
-        const hasStock = await checkStock({ page })
-        
-        console.log(`${vendor}: ${hasStock ? 'HAS STOCK!!!' : 'Out of Stock'}`)
-        //await page.screenshot({ path: `screenshots/${vendor}.png` })
+    try {
+        await page.goto(SITE, {timeout:70000})
+    } catch(error) {
+        throw new Error(error)
+    }
+    
+    await page.waitForSelector('.screener_table')
 
-        await page.close()
+    let rows = await collectTableWithHeaders({
+      page,
+      selector: '.screener_table',
+    })
+
+    const stocks = []
+    
+    if (rows) {
+        rows.map((gainer) => {
+            const stock = JSON.parse(`{
+                "No":"${Object.entries(gainer)[0][1]}",
+                "Ticker":"${Object.entries(gainer)[1][1]}",
+                "Company":"${Object.entries(gainer)[2][1]}",
+                "Sector":"${Object.entries(gainer)[3][1]}",
+                "Industry":"${Object.entries(gainer)[4][1]}",
+                "Country":"${Object.entries(gainer)[5][1]}",
+                "Market_Cap":"${Object.entries(gainer)[6][1]}",
+                "P_E":"${Object.entries(gainer)[7][1]}",
+                "Price":"${Object.entries(gainer)[8][1]}",
+                "Change":"${Object.entries(gainer)[9][1]}",
+                "Volume":"${Object.entries(gainer)[10][1]}"
+            }`)
+
+            stocks.push(stock)
+        })
     }
 
+    //console.log(stocks[3].Market_Cap);
+    console.log(stocks);
+
+    await page.close()
     await browser.close()
 })()

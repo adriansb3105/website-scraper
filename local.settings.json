@@ -1,8 +1,11 @@
 {
   "IsEncrypted": false,
   "Values": {
-    "AzureWebJobsStorage": "",
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
     "FUNCTIONS_WORKER_RUNTIME": "node",
-    "AzureWebJobsFeatureFlags": "EnableWorkerIndexing"
+    "AzureWebJobsFeatureFlags": "EnableWorkerIndexing",
+    "APPLICATIONINSIGHTS_CONNECTION_STRING": "InstrumentationKey=61945cc9-3392-4f1a-a89b-24f6693e4c0d;IngestionEndpoint=https://eastus-8.in.applicationinsights.azure.com/;LiveEndpoint=https://eastus.livediagnostics.monitor.azure.com/",
+    "AzureWebJobsSecretStorageType": "files",
+    "FUNCTIONS_EXTENSION_VERSION": "~4"
   }
 }

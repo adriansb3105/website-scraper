@@ -25,7 +25,7 @@ const SITE = 'https://finviz.com/screener.ashx?v=111&s=ta_topgainers'
     const stocks = []
     
     if (rows) {
-        for ( let gainer of rows ) {
+        rows.map((gainer) => {
             const stock = JSON.parse(`{
                 "No":"${Object.entries(gainer)[0][1]}",
                 "Ticker":"${Object.entries(gainer)[1][1]}",
@@ -41,10 +41,11 @@ const SITE = 'https://finviz.com/screener.ashx?v=111&s=ta_topgainers'
             }`)
 
             stocks.push(stock)
-        }
+        })
     }
 
-    console.log(stocks[3].Market_Cap);
+    //console.log(stocks[3].Market_Cap);
+    console.log(stocks);
 
     await page.close()
     await browser.close()
